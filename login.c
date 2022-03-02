@@ -1,24 +1,32 @@
-#include <stdio.h>
+#include <stdbool.h>
 
 #include "login.h"
-#include "../utils/io.h"
+#include "amministratore.h"
+#include "personale_cup.h"
+#include "paziente.h"
+#include "../view/login.h"
+#include "../model/db.h"
 
-void view_login(struct credenziali *cred)
-{
-	clear_screen();
-	puts("#################################");
-	puts("#   SISTEMA INFORMATIVO ASL DB   #");
-	puts("#################################\n");
-	puts("\n\n\t    #           m           #                         \n");
-	puts("\t mmm#   mmm   mm#mm   mmm   #mmm    mmm    mmm    mmm \n");
-   	puts("\t#\" \"#  \"   #    #    \"   #  #\" \"#  \"   #  #   \"  #\"  #\n");
-	puts("\t#   #  m\"\"\"#    #    m\"\"\"#  #   #  m\"\"\"#   \"\"\"m  #\"\"\"\"\n");
-        puts("\t\"#m##  \"mm\"#    \"mm  \"mm\"#  ##m#\"  \"mm\"#  \"mmm\"  \"#mm\"\n\n\n");
-	get_input("Username: ", USERNAME_LEN, cred->username, false);
-	get_input("Password: ", PASSWORD_LEN, cred->password, true);
-}
 
-bool ask_for_relogin(void)
+bool login(void)
 {
-	return yes_or_no("Do you want to log in as a different user?", 'y', 'n', false, true);
+	struct credenziali cred;
+	view_login(&cred);
+	ruolo_t role = attempt_login(&cred);
+
+	switch(role) {
+		case AMMINISTRATORE:
+			administrator_controller();
+			break;
+		case PERSONALE_CUP:
+			cup_controller();
+			break;
+		case PAZIENTE:
+			paziente_controller();
+			break;
+		default:
+			return false;
+	}
+
+	return true;
 }
